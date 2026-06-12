@@ -7,12 +7,12 @@ $ErrorActionPreference = "Stop"
 
 function Require-Command($Name, $InstallHint) {
     if (-not (Get-Command $Name -ErrorAction SilentlyContinue)) {
-        throw "未找到命令 $Name。$InstallHint"
+        throw "Command not found: $Name. $InstallHint"
     }
 }
 
-Require-Command git "请先安装 Git。"
-Require-Command docker "请先安装 Docker Desktop 或 Docker Engine，并确认 docker 命令可用。"
+Require-Command git "Please install Git first."
+Require-Command docker "Please install Docker Desktop or Docker Engine first."
 
 $parent = Split-Path -Parent $InstallDir
 if (-not (Test-Path $parent)) {
@@ -32,9 +32,9 @@ try {
     }
 
     Write-Host ""
-    Write-Host "OnlineJudge 已启动。"
-    Write-Host "访问地址: $PublicHost"
-    Write-Host "下一步: .\deploy\create-super-admin.ps1 -InstallDir `"$InstallDir`" -Username admin -Password `"Admin@123456`""
+    Write-Host "OnlineJudge startup command finished."
+    Write-Host "Public URL: $PublicHost"
+    Write-Host ('Next: .\deploy\create-super-admin.ps1 -InstallDir "{0}" -Username admin -Password "Admin@123456"' -f $InstallDir)
 } finally {
     Pop-Location
 }
