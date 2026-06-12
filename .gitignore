@@ -1,0 +1,14 @@
+.qt/
+.tools/
+
+client/gyoj-client/build*/
+client/oj-shell/node_modules/
+client/oj-shell/dist/
+client/oj-shell/*.zip
+client/gyoj-client/**/startup.log
+client/gyoj-client/**/startup-raw.log
+client/gyoj-client/**/qt-debug.log
+client/gyoj-client/**/qt-out.log
+
+__pycache__/
+*.py[cod]

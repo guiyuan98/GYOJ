@@ -1,0 +1,23 @@
+{
+  "serverBaseUrl": "https://qduoj.com",
+  "clientVersion": "0.1.0",
+  "compilerPath": "../../../.qt/Tools/mingw1310_64/bin/g++.exe",
+  "heartbeatSeconds": 10,
+  "localRunTimeoutMs": 3000,
+  "enableFirewallLock": false,
+  "processBlacklist": [
+    "chrome.exe",
+    "msedge.exe",
+    "firefox.exe",
+    "qq.exe",
+    "wechat.exe",
+    "devenv.exe",
+    "code.exe",
+    "devcpp.exe",
+    "teamviewer.exe",
+    "anydesk.exe"
+  ],
+  "networkAllowlist": [
+    "203.0.113.10"
+  ]
+}

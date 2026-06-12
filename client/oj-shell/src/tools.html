@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GYOJ Local Tools</title>
+    <link rel="stylesheet" href="./tools.css" />
+  </head>
+  <body>
+    <header>
+      <input id="url" value="http://127.0.0.1" spellcheck="false" />
+      <button id="go">Go</button>
+    </header>
+    <main>
+      <textarea id="code" spellcheck="false">#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int a, b;
+    cin &gt;&gt; a &gt;&gt; b;
+    cout &lt;&lt; a + b &lt;&lt; '\n';
+    return 0;
+}
+</textarea>
+      <section>
+        <label for="stdin">样例输入</label>
+        <textarea id="stdin" spellcheck="false">1 2
+</textarea>
+      </section>
+      <div class="actions">
+        <button id="run">本地运行样例</button>
+        <span id="status">F8 显示/隐藏此面板</span>
+      </div>
+      <pre id="output"></pre>
+    </main>
+    <script src="./tools.js"></script>
+  </body>
+</html>

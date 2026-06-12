@@ -1,0 +1,15 @@
+{
+  "name": "gyoj-oj-shell",
+  "version": "0.1.0",
+  "description": "QingdaoU OnlineJudge secure desktop shell with local OI editor",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "start:dev": "electron . --no-proctor",
+    "start:tools": "electron . --tools",
+    "start:dev-tools": "electron . --no-proctor --tools"
+  },
+  "devDependencies": {
+    "electron": "^31.7.7"
+  }
+}

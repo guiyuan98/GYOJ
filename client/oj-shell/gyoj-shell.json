@@ -1,0 +1,27 @@
+{
+  "serverBaseUrl": "http://127.0.0.1",
+  "compilerPath": "../../.qt/Tools/mingw1310_64/bin/g++.exe",
+  "localRunTimeoutMs": 3000,
+  "language": "zh-CN",
+  "editor": {
+    "autoOpen": true
+  },
+  "proctor": {
+    "enabled": true,
+    "teacherUnlockPassword": "123456",
+    "clearClipboard": true,
+    "lockOnBlur": true,
+    "processBlacklist": [
+      "chrome.exe",
+      "msedge.exe",
+      "firefox.exe",
+      "wechat.exe",
+      "qq.exe",
+      "devenv.exe",
+      "code.exe",
+      "devcpp.exe",
+      "teamviewer.exe",
+      "anydesk.exe"
+    ]
+  }
+}

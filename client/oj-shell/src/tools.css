@@ -1,0 +1,104 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  height: 100vh;
+  overflow: hidden;
+  color: #1f2933;
+  background: #f5f7fa;
+  font: 14px/1.45 "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+
+header {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid #d7dde4;
+  background: #fff;
+}
+
+input,
+textarea,
+button {
+  font: inherit;
+}
+
+input,
+textarea {
+  width: 100%;
+  border: 1px solid #c8d0d9;
+  border-radius: 6px;
+  background: #fff;
+}
+
+input {
+  height: 32px;
+  padding: 0 8px;
+}
+
+button {
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid #1f5eff;
+  border-radius: 6px;
+  color: #fff;
+  background: #1f5eff;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+main {
+  display: grid;
+  grid-template-rows: 1fr 120px 40px 170px;
+  gap: 10px;
+  height: calc(100vh - 53px);
+  padding: 10px;
+}
+
+#code,
+#stdin,
+#output {
+  font-family: Consolas, "Cascadia Mono", monospace;
+  font-size: 14px;
+}
+
+#code,
+#stdin {
+  resize: none;
+  padding: 10px;
+}
+
+section {
+  display: grid;
+  grid-template-rows: 22px 1fr;
+  min-height: 0;
+}
+
+label {
+  color: #52606d;
+  font-size: 12px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+#status {
+  color: #52606d;
+  font-size: 12px;
+}
+
+#output {
+  margin: 0;
+  padding: 10px;
+  overflow: auto;
+  white-space: pre-wrap;
+  border: 1px solid #c8d0d9;
+  border-radius: 6px;
+  background: #111827;
+  color: #e5e7eb;
+}
