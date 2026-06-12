@@ -20,7 +20,12 @@ Push-Location $InstallDir
 try {
     $running = docker ps --format "{{.Names}}" | Select-String -SimpleMatch $BackendContainer
     if (-not $running) {
-        throw "Backend container is not running: $BackendContainer. Run bootstrap-onlinejudge.ps1 first and wait for startup."
+        $detected = docker ps --format "{{.Names}}" | Where-Object { $_ -match "oj-backend" } | Select-Object -First 1
+        if ($detected) {
+            $BackendContainer = $detected
+        } else {
+            throw "Backend container is not running: $BackendContainer. Run bootstrap-onlinejudge.ps1 first and wait for startup."
+        }
     }
 
     $code = @'
