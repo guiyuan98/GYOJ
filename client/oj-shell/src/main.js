@@ -9,7 +9,7 @@ const configPath = path.join(rootDir, "gyoj-shell.json");
 
 function loadConfig() {
   const fallback = {
-    serverBaseUrl: "http://192.168.1.149",
+    serverBaseUrl: "http://localhost",
     compilerPath: "tools/mingw/bin/g++.exe",
     localRunTimeoutMs: 3000,
     language: "zh-CN",
@@ -18,7 +18,7 @@ function loadConfig() {
     },
     proctor: {
       enabled: true,
-      teacherUnlockPassword: "123456",
+      teacherUnlockPassword: "CHANGE_ME_TEACHER_UNLOCK_PASSWORD",
       clearClipboard: true,
       lockOnBlur: true,
       processBlacklist: [
@@ -54,7 +54,7 @@ let processTimer;
 app.commandLine.appendSwitch("lang", config.language || "zh-CN");
 
 function normalizedUrl(url) {
-  const value = String(url || "").trim() || "http://192.168.1.149";
+  const value = String(url || "").trim() || "http://localhost";
   if (value.startsWith("http://") || value.startsWith("https://")) return value;
   return `https://${value}`;
 }

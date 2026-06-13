@@ -13,7 +13,7 @@
 
 ```json
 {
-  "serverBaseUrl": "http://192.168.1.149"
+  "serverBaseUrl": "http://localhost"
 }
 ```
 

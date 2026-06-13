@@ -35,9 +35,9 @@ http://localhost/
 .\deploy\init-hydro-admin.ps1 `
   -Distro Ubuntu-26.04-E `
   -BaseUrl http://localhost `
-  -Email guiyuan98@foxmail.com `
+  -Email admin@example.com `
   -Username admin `
-  -Password "Admin@123456"
+  -Password "CHANGE_ME_STRONG_PASSWORD"
 ```
 
 也可以按 Hydro 官方提示：先在网页注册账号，再运行：
@@ -48,7 +48,7 @@ wsl -d Ubuntu-26.04-E -u root -- bash -lc "export PATH=/root/.nix-profile/bin:/u
 
 ## 3. 发布到局域网
 
-WSL 内部服务默认能被 Windows 本机访问，但同一机房学生机要访问 `http://192.168.1.149/`，需要管理员权限建立端口代理：
+WSL 内部服务默认能被 Windows 本机访问，但同一机房学生机要访问 `http://YOUR_SERVER_IP/`，需要管理员权限建立端口代理：
 
 ```powershell
 cd C:\Users\13456\Documents\GYOJ
@@ -69,14 +69,14 @@ C:\Users\13456\Documents\GYOJ\client\oj-shell\gyoj-shell.json
 
 ```json
 {
-  "serverBaseUrl": "http://192.168.1.149",
+  "serverBaseUrl": "http://localhost",
   "language": "zh-CN",
   "editor": { "autoOpen": true },
   "proctor": { "enabled": true }
 }
 ```
 
-如果部署到云服务器，把 `serverBaseUrl` 改成你的公网域名或公网 IP，例如 `https://oj.example.com`。
+如果部署到云服务器，把 `serverBaseUrl` 改成你的公网域名或公网 IP，例如 `https://YOUR_DOMAIN`。
 
 ## 5. 迁移旧 Hydro 数据
 

@@ -1,12 +1,16 @@
 param(
     [string]$Distro = "Ubuntu-26.04-E",
     [string]$BaseUrl = "http://localhost",
-    [string]$Email = "guiyuan98@foxmail.com",
+    [string]$Email = "admin@example.com",
     [string]$Username = "admin",
-    [string]$Password = "Admin@123456"
+    [string]$Password = "CHANGE_ME_STRONG_PASSWORD"
 )
 
 $ErrorActionPreference = "Stop"
+
+if ($Password -eq "CHANGE_ME_STRONG_PASSWORD") {
+    throw "Please pass a real administrator password with -Password before initializing Hydro."
+}
 
 Write-Host "Registering Hydro admin account through $BaseUrl"
 $mail = [uri]::EscapeDataString($Email)
@@ -27,4 +31,3 @@ wsl -d $Distro -u root -- bash -lc "export PATH=/root/.nix-profile/bin:/usr/loca
 Write-Host "Hydro super admin is ready:"
 Write-Host "  username: $Username"
 Write-Host "  email:    $Email"
-

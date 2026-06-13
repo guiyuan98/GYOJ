@@ -79,7 +79,7 @@ cd <project-root>
   -BaseUrl http://localhost `
   -Email admin@example.com `
   -Username admin `
-  -Password "Admin@123456"
+  -Password "CHANGE_ME_STRONG_PASSWORD"
 ```
 
 首次部署后请立刻修改管理员密码。
@@ -89,7 +89,7 @@ cd <project-root>
 登录 Hydro 管理员账号后，建议检查这些配置：
 
 - 系统语言：设为中文。
-- Server BaseURL：设为学生实际访问地址，例如 `http://192.168.1.149/` 或你的公网域名。
+- Server BaseURL：设为学生实际访问地址，例如 `http://YOUR_SERVER_IP/` 或你的公网域名。
 - 题库和比赛：按 OI 赛制创建题目、测试数据和比赛。
 - 评测服务：确认 `hydrojudge`、`hydro-sandbox` 在线。
 
@@ -106,7 +106,7 @@ wsl -d Ubuntu-26.04-E -u root -- bash -lc "export PATH=/root/.nix-profile/bin:/u
 如果学生电脑和服务器在同一个机房局域网内，需要让学生访问服务器的局域网 IP，例如：
 
 ```text
-http://192.168.1.149/
+http://YOUR_SERVER_IP/
 ```
 
 WSL 内部服务默认只保证 Windows 本机能访问。要让其他学生机访问，需要管理员 PowerShell 执行：
@@ -136,7 +136,7 @@ client/oj-shell/gyoj-shell.json
 
 ```json
 {
-  "serverBaseUrl": "http://192.168.1.149",
+  "serverBaseUrl": "http://localhost",
   "compilerPath": "tools/mingw/bin/g++.exe",
   "localRunTimeoutMs": 3000,
   "language": "zh-CN",
@@ -145,7 +145,7 @@ client/oj-shell/gyoj-shell.json
   },
   "proctor": {
     "enabled": true,
-    "teacherUnlockPassword": "123456",
+    "teacherUnlockPassword": "CHANGE_ME_TEACHER_UNLOCK_PASSWORD",
     "clearClipboard": true,
     "lockOnBlur": true,
     "processBlacklist": [
@@ -185,7 +185,7 @@ client/oj-shell/gyoj-shell.json
 
 ```json
 {
-  "serverBaseUrl": "http://192.168.1.149"
+  "serverBaseUrl": "http://YOUR_SERVER_IP"
 }
 ```
 
@@ -193,7 +193,7 @@ client/oj-shell/gyoj-shell.json
 
 ```json
 {
-  "serverBaseUrl": "https://oj.example.com"
+  "serverBaseUrl": "https://YOUR_DOMAIN"
 }
 ```
 

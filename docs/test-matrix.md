@@ -5,8 +5,8 @@
 | D-01 | Hydro 安装 | 执行 `deploy/install-hydro-wsl.ps1` | WSL 中安装 Hydro、MongoDB、Caddy、HydroJudge |
 | D-02 | Hydro 启动 | 执行 `deploy/start-hydro-wsl.ps1` | PM2 中 `hydrooj`、`hydro-sandbox`、`mongodb`、`caddy` 在线 |
 | D-03 | 本机访问 | 打开 `http://localhost/` | 显示中文 Hydro 首页 |
-| D-04 | 超级管理员 | 登录 `admin / Admin@123456` | 可进入控制面板 |
-| D-05 | 局域网发布 | 管理员运行 `deploy/publish-hydro-lan.ps1` | 学生机可访问 `http://192.168.1.149/` |
+| D-04 | 超级管理员 | 使用初始化时设置的管理员账号登录 | 可进入控制面板 |
+| D-05 | 局域网发布 | 管理员运行 `deploy/publish-hydro-lan.ps1` | 学生机可访问 `http://YOUR_SERVER_IP/` |
 | C-01 | 客户端默认地址 | 解压发行包运行 `Hydro Exam Client.exe` | 默认打开 `gyoj-shell.json` 中的 Hydro 地址 |
 | C-02 | 开发调试 | `npm run start:dev -- --oj-url=http://localhost` | 不进入强监考，主窗口加载本机 Hydro |
 | C-03 | 编辑器自动打开 | 启动客户端 | 本地 C++ 编辑器自动显示 |

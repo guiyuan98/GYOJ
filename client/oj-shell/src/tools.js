@@ -54,7 +54,7 @@ urlInput.addEventListener("keydown", (event) => {
 });
 runButton.addEventListener("click", runSample);
 initDefaultUrl().catch(() => {
-  urlInput.value = "http://192.168.1.149";
+  urlInput.value = "http://localhost";
 });
 
 window.gyoj.onToolsVisible((visible) => {
