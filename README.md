@@ -43,6 +43,17 @@ cd C:\Users\13456\Documents\GYOJ
 http://192.168.1.149/
 ```
 
+## 迁移旧 Hydro 数据
+
+如果你已经有一套旧 Hydro OJ，可以把用户、题目、比赛、提交记录和测试数据迁移到新 OJ。优先使用 Hydro 自带备份恢复：
+
+```bash
+hydrooj backup
+hydrooj restore 备份文件路径
+```
+
+完整步骤见：[Hydro 旧站数据迁移到新 OJ](docs/hydro-data-migration.md)。
+
 ## 启动考试客户端
 
 开发调试模式，不启用监考限制，并临时指向本机 Hydro：

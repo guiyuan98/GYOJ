@@ -78,7 +78,22 @@ C:\Users\13456\Documents\GYOJ\client\oj-shell\gyoj-shell.json
 
 如果部署到云服务器，把 `serverBaseUrl` 改成你的公网域名或公网 IP，例如 `https://oj.example.com`。
 
-## 5. 和考试客户端的关系
+## 5. 迁移旧 Hydro 数据
+
+旧 Hydro 站点迁移到新站时，优先使用：
+
+```bash
+hydrooj backup
+hydrooj restore 备份文件路径
+```
+
+详细步骤见：
+
+```text
+docs/hydro-data-migration.md
+```
+
+## 6. 和考试客户端的关系
 
 - Hydro 负责账号、题库、比赛、正式提交、隐藏数据判题和排名。
 - `client/oj-shell` 负责全屏考试入口、本地 C++ 编辑器、样例运行、禁止复制粘贴、切屏锁定和违规提示。
