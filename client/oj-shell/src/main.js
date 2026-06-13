@@ -50,8 +50,13 @@ let toolsVisible = false;
 let locked = false;
 let clipboardTimer;
 let processTimer;
+let appQuitting = false;
 
 app.commandLine.appendSwitch("lang", config.language || "zh-CN");
+
+function isLiveWindow(window) {
+  return Boolean(window && !window.isDestroyed());
+}
 
 function normalizedUrl(url) {
   const value = String(url || "").trim() || "http://localhost";
@@ -95,7 +100,7 @@ function editorAutoOpen() {
 }
 
 function setLayout() {
-  if (!mainWindow || !toolsWindow) return;
+  if (!isLiveWindow(mainWindow) || !isLiveWindow(toolsWindow)) return;
   const bounds = mainWindow.getBounds();
   const toolsWidth = Math.min(bounds.width - 48, Math.max(980, Math.floor(bounds.width * 0.62)));
   toolsWindow.setBounds({
@@ -107,6 +112,7 @@ function setLayout() {
 }
 
 function toggleTools() {
+  if (!isLiveWindow(toolsWindow)) return;
   toolsVisible = !toolsVisible;
   setLayout();
   if (toolsVisible) {
@@ -119,7 +125,7 @@ function toggleTools() {
 }
 
 function lockExam(reason) {
-  if (!proctorEnabled() || locked || !lockWindow) return;
+  if (!proctorEnabled() || locked || !isLiveWindow(lockWindow)) return;
   locked = true;
   lockWindow.webContents.send("lock-reason", reason);
   lockWindow.show();
@@ -131,8 +137,8 @@ function unlockExam(password) {
     return { ok: false, message: "解锁密码错误" };
   }
   locked = false;
-  lockWindow.hide();
-  mainWindow.focus();
+  if (isLiveWindow(lockWindow)) lockWindow.hide();
+  if (isLiveWindow(mainWindow)) mainWindow.focus();
   return { ok: true };
 }
 
@@ -200,6 +206,7 @@ function startProcessGuard() {
 }
 
 function injectChinesePreference() {
+  if (!isLiveWindow(mainWindow)) return;
   const language = JSON.stringify(config.language || "zh-CN");
   const script = `
     try {
@@ -243,6 +250,12 @@ function createWindow() {
   });
   toolsWindow.setMenuBarVisibility(false);
   toolsWindow.setAlwaysOnTop(true, "floating");
+  toolsWindow.on("close", (event) => {
+    if (appQuitting || !isLiveWindow(mainWindow)) return;
+    event.preventDefault();
+    toolsVisible = false;
+    toolsWindow.hide();
+  });
 
   lockWindow = new BrowserWindow({
     title: "Hydro 考试已锁定",
@@ -279,8 +292,9 @@ function createWindow() {
   mainWindow.on("resize", setLayout);
   mainWindow.on("move", setLayout);
   mainWindow.on("closed", () => {
-    if (toolsWindow) toolsWindow.close();
-    if (lockWindow) lockWindow.close();
+    appQuitting = true;
+    if (isLiveWindow(toolsWindow)) toolsWindow.close();
+    if (isLiveWindow(lockWindow)) lockWindow.close();
     mainWindow = undefined;
     toolsWindow = undefined;
     lockWindow = undefined;
@@ -404,6 +418,7 @@ app.whenReady().then(() => {
   createWindow();
   globalShortcut.register("F8", toggleTools);
   globalShortcut.register("CommandOrControl+L", () => {
+    if (!isLiveWindow(toolsWindow)) return;
     toolsVisible = true;
     setLayout();
     toolsWindow.show();
@@ -420,6 +435,7 @@ app.on("window-all-closed", () => {
 });
 
 app.on("will-quit", () => {
+  appQuitting = true;
   if (clipboardTimer) clearInterval(clipboardTimer);
   if (processTimer) clearInterval(processTimer);
   globalShortcut.unregisterAll();
