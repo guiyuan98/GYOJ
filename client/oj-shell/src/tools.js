@@ -1,10 +1,304 @@
 const urlInput = document.querySelector("#url");
 const goButton = document.querySelector("#go");
+const runAllButton = document.querySelector("#runAll");
+const addSourceButton = document.querySelector("#addSource");
+const addCaseButton = document.querySelector("#addCase");
+const runCurrentButton = document.querySelector("#runCurrent");
+const deleteCaseButton = document.querySelector("#deleteCase");
+const sourceList = document.querySelector("#sourceList");
+const caseList = document.querySelector("#caseList");
+const activeTab = document.querySelector("#activeTab");
+const statusText = document.querySelector("#status");
 const codeInput = document.querySelector("#code");
+const lineNumbers = document.querySelector("#lineNumbers");
+const caseTitle = document.querySelector("#caseTitle");
+const caseMeta = document.querySelector("#caseMeta");
 const stdinInput = document.querySelector("#stdin");
-const runButton = document.querySelector("#run");
-const output = document.querySelector("#output");
-const status = document.querySelector("#status");
+const expectedInput = document.querySelector("#expected");
+const resultList = document.querySelector("#resultList");
+const stdoutPanel = document.querySelector("#stdoutPanel");
+const stderrPanel = document.querySelector("#stderrPanel");
+
+const STORAGE_KEY = "hydro-local-tools-workspace-v2";
+
+const cppTemplate = `#include <bits/stdc++.h>
+using namespace std;
+
+int main() {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+
+    int a, b;
+    cin >> a >> b;
+    cout << a + b << '\\n';
+    return 0;
+}
+`;
+
+let state = loadState();
+
+function defaultState() {
+  return {
+    activeSourceId: "main",
+    activeCaseId: "case-0",
+    sources: [
+      { id: "main", name: "main.cpp", code: cppTemplate },
+    ],
+    cases: [
+      { id: "case-0", name: "0", input: "1 2\n", expected: "3\n", last: null },
+      { id: "case-1", name: "1", input: "10 20\n", expected: "30\n", last: null },
+    ],
+  };
+}
+
+function loadState() {
+  try {
+    const value = JSON.parse(localStorage.getItem(STORAGE_KEY) || "");
+    if (value?.sources?.length && value?.cases?.length) return value;
+  } catch {}
+  return defaultState();
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function activeSource() {
+  return state.sources.find((item) => item.id === state.activeSourceId) || state.sources[0];
+}
+
+function activeCase() {
+  return state.cases.find((item) => item.id === state.activeCaseId) || state.cases[0];
+}
+
+function normalizeOutput(text) {
+  return String(text || "").replace(/\r\n/g, "\n").trimEnd();
+}
+
+function outputMatches(actual, expected) {
+  if (!String(expected || "").trim()) return null;
+  return normalizeOutput(actual) === normalizeOutput(expected);
+}
+
+function setStatus(text) {
+  statusText.textContent = text;
+}
+
+function updateLineNumbers() {
+  const count = Math.max(1, codeInput.value.split("\n").length);
+  lineNumbers.textContent = Array.from({ length: count }, (_value, index) => index + 1).join("\n");
+}
+
+function renderSources() {
+  sourceList.innerHTML = "";
+  for (const source of state.sources) {
+    const row = document.createElement("div");
+    row.className = `file-item ${source.id === state.activeSourceId ? "active" : ""}`;
+    row.innerHTML = `<span>C++</span><span class="file-name"></span><span class="file-status">src</span>`;
+    row.querySelector(".file-name").textContent = source.name;
+    row.addEventListener("click", () => {
+      syncInputsToState();
+      state.activeSourceId = source.id;
+      render();
+    });
+    sourceList.appendChild(row);
+  }
+}
+
+function renderCases() {
+  caseList.innerHTML = "";
+  for (const testCase of state.cases) {
+    const active = testCase.id === state.activeCaseId ? "active" : "";
+    const last = testCase.last?.status || "";
+    const row = document.createElement("div");
+    row.className = `file-item ${active}`;
+    row.innerHTML = `<span>IO</span><span class="file-name"></span><span class="file-status"></span>`;
+    row.querySelector(".file-name").textContent = `${testCase.name}.in / ${testCase.name}.out`;
+    row.querySelector(".file-status").textContent = last;
+    row.addEventListener("click", () => {
+      syncInputsToState();
+      state.activeCaseId = testCase.id;
+      render();
+    });
+    caseList.appendChild(row);
+  }
+}
+
+function renderEditor() {
+  const source = activeSource();
+  activeTab.textContent = source.name;
+  if (codeInput.value !== source.code) codeInput.value = source.code;
+  updateLineNumbers();
+}
+
+function renderCaseEditor() {
+  const testCase = activeCase();
+  caseTitle.textContent = `${testCase.name}.in / ${testCase.name}.out`;
+  caseMeta.textContent = testCase.last
+    ? `${testCase.last.status} · ${testCase.last.ms ?? 0}ms`
+    : "编辑输入数据和期望输出";
+  if (stdinInput.value !== testCase.input) stdinInput.value = testCase.input;
+  if (expectedInput.value !== testCase.expected) expectedInput.value = testCase.expected;
+  deleteCaseButton.disabled = state.cases.length <= 1;
+}
+
+function renderResults() {
+  resultList.innerHTML = "";
+  for (const testCase of state.cases) {
+    const last = testCase.last;
+    const status = last?.status || "未运行";
+    const cardState = status === "通过" ? "pass" : status === "未运行" ? "" : status === "超时" ? "warn" : "fail";
+    const card = document.createElement("div");
+    card.className = `result-card ${cardState}`;
+    card.innerHTML = `
+      <div class="result-head">
+        <span>${testCase.name}.in / ${testCase.name}.out</span>
+        <span class="badge">${status}</span>
+      </div>
+      <div class="diff"></div>
+    `;
+    const detail = card.querySelector(".diff");
+    if (last) {
+      const expected = String(testCase.expected || "").trim()
+        ? `期望: ${normalizeOutput(testCase.expected) || "(空)"}`
+        : "未填写期望输出";
+      const actual = `实际: ${normalizeOutput(last.stdout) || "(空)"}`;
+      detail.textContent = `退出码: ${last.code} · 耗时: ${last.ms}ms\n${expected}\n${actual}`;
+    } else {
+      detail.textContent = "点击运行当前或运行全部。";
+    }
+    card.addEventListener("click", () => {
+      syncInputsToState();
+      state.activeCaseId = testCase.id;
+      render();
+      showCaseOutput(testCase);
+    });
+    resultList.appendChild(card);
+  }
+}
+
+function render() {
+  renderSources();
+  renderCases();
+  renderEditor();
+  renderCaseEditor();
+  renderResults();
+  showCaseOutput(activeCase());
+  saveState();
+}
+
+function syncInputsToState() {
+  const source = activeSource();
+  const testCase = activeCase();
+  if (source) source.code = codeInput.value;
+  if (testCase) {
+    testCase.input = stdinInput.value;
+    testCase.expected = expectedInput.value;
+  }
+  saveState();
+}
+
+function showCaseOutput(testCase) {
+  const last = testCase?.last;
+  stdoutPanel.textContent = last?.stdout || "";
+  stderrPanel.textContent = last?.stderr || "";
+}
+
+function setRunning(running) {
+  runAllButton.disabled = running;
+  runCurrentButton.disabled = running;
+}
+
+function resultStatus(result, expected) {
+  if (result.timedOut) return "超时";
+  if (!result.ok) return "运行错误";
+  const matched = outputMatches(result.stdout, expected);
+  if (matched === null) return "已运行";
+  return matched ? "通过" : "答案错误";
+}
+
+async function runTests(testIds = null) {
+  syncInputsToState();
+  const source = activeSource();
+  const selectedCases = testIds
+    ? state.cases.filter((item) => testIds.includes(item.id))
+    : state.cases;
+  setRunning(true);
+  setStatus("正在编译...");
+  stdoutPanel.textContent = "";
+  stderrPanel.textContent = "";
+  try {
+    const result = await window.gyoj.runTests({
+      code: source.code,
+      tests: selectedCases.map((item) => ({
+        id: item.id,
+        name: item.name,
+        input: item.input,
+        expected: item.expected,
+      })),
+    });
+    if (result.phase === "compile") {
+      setStatus("编译失败");
+      stderrPanel.textContent = result.compile.stderr || result.compile.stdout || "编译失败，但没有返回错误信息。";
+      activateResultPanel("stderr");
+      for (const item of selectedCases) {
+        item.last = {
+          status: "编译失败",
+          code: result.compile.code,
+          ms: result.compile.ms,
+          stdout: "",
+          stderr: result.compile.stderr || result.compile.stdout || "",
+        };
+      }
+      render();
+      return;
+    }
+    for (const run of result.tests) {
+      const testCase = state.cases.find((item) => item.id === run.id);
+      if (!testCase) continue;
+      testCase.last = {
+        ...run,
+        status: resultStatus(run, testCase.expected),
+      };
+    }
+    const passed = selectedCases.filter((item) => item.last?.status === "通过").length;
+    setStatus(`运行完成，${passed}/${selectedCases.length} 通过`);
+    activateResultPanel("summary");
+    render();
+  } catch (error) {
+    setStatus("运行失败");
+    stderrPanel.textContent = error?.message || String(error);
+    activateResultPanel("stderr");
+  } finally {
+    setRunning(false);
+  }
+}
+
+function addSource() {
+  syncInputsToState();
+  const index = state.sources.length + 1;
+  const id = `source-${Date.now()}`;
+  state.sources.push({ id, name: `solution${index}.cpp`, code: cppTemplate });
+  state.activeSourceId = id;
+  render();
+}
+
+function addCase() {
+  syncInputsToState();
+  const nextNumber = state.cases.reduce((max, item) => Math.max(max, Number(item.name) || 0), -1) + 1;
+  const id = `case-${Date.now()}`;
+  state.cases.push({ id, name: String(nextNumber), input: "", expected: "", last: null });
+  state.activeCaseId = id;
+  render();
+}
+
+function deleteActiveCase() {
+  if (state.cases.length <= 1) return;
+  const index = state.cases.findIndex((item) => item.id === state.activeCaseId);
+  state.cases.splice(index, 1);
+  state.activeCaseId = state.cases[Math.max(0, index - 1)].id;
+  render();
+}
 
 async function initDefaultUrl() {
   const target = await window.gyoj.getDefaultOjUrl();
@@ -14,45 +308,47 @@ async function initDefaultUrl() {
 async function loadOjUrl() {
   const target = await window.gyoj.loadOjUrl(urlInput.value);
   urlInput.value = target;
-  status.textContent = `已加载 ${target}`;
+  setStatus(`已加载 ${target}`);
 }
 
-async function runSample() {
-  runButton.disabled = true;
-  status.textContent = "正在编译运行...";
-  output.textContent = "";
-  try {
-    const result = await window.gyoj.runSample({
-      code: codeInput.value,
-      stdin: stdinInput.value,
-    });
-    const lines = [
-      result.phase === "compile" ? "编译失败" : "运行完成",
-      `退出码: ${result.code}`,
-      `耗时: ${result.ms}ms`,
-      result.timedOut ? "状态: 超时" : "状态: 正常结束",
-      "",
-      "[stdout]",
-      result.stdout || "",
-      "",
-      "[stderr]",
-      result.stderr || "",
-    ];
-    output.textContent = lines.join("\n");
-    status.textContent = result.ok ? "样例运行通过" : "样例运行未通过";
-  } catch (error) {
-    output.textContent = error?.message || String(error);
-    status.textContent = "运行失败";
-  } finally {
-    runButton.disabled = false;
-  }
+function activateResultPanel(name) {
+  document.querySelectorAll(".result-tab").forEach((tab) => {
+    tab.classList.toggle("active", tab.dataset.panel === name);
+  });
+  document.querySelectorAll(".result-panel").forEach((panel) => panel.classList.remove("active"));
+  document.querySelector(`#${name}Panel`)?.classList.add("active");
 }
 
 goButton.addEventListener("click", loadOjUrl);
 urlInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") loadOjUrl();
 });
-runButton.addEventListener("click", runSample);
+runAllButton.addEventListener("click", () => runTests());
+runCurrentButton.addEventListener("click", () => runTests([activeCase().id]));
+addSourceButton.addEventListener("click", addSource);
+addCaseButton.addEventListener("click", addCase);
+deleteCaseButton.addEventListener("click", deleteActiveCase);
+
+codeInput.addEventListener("input", () => {
+  activeSource().code = codeInput.value;
+  updateLineNumbers();
+  saveState();
+});
+codeInput.addEventListener("scroll", () => {
+  lineNumbers.scrollTop = codeInput.scrollTop;
+});
+stdinInput.addEventListener("input", () => {
+  activeCase().input = stdinInput.value;
+  saveState();
+});
+expectedInput.addEventListener("input", () => {
+  activeCase().expected = expectedInput.value;
+  saveState();
+});
+document.querySelectorAll(".result-tab").forEach((tab) => {
+  tab.addEventListener("click", () => activateResultPanel(tab.dataset.panel));
+});
+
 initDefaultUrl().catch(() => {
   urlInput.value = "http://localhost";
 });
@@ -64,3 +360,5 @@ window.gyoj.onFocusUrl(() => {
   urlInput.focus();
   urlInput.select();
 });
+
+render();

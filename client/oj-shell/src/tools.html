@@ -3,38 +3,80 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hydro Local Tools</title>
+    <title>Hydro OI 本地编辑器</title>
     <link rel="stylesheet" href="./tools.css" />
   </head>
   <body>
-    <header>
-      <input id="url" value="" spellcheck="false" />
-      <button id="go">打开</button>
+    <header class="topbar">
+      <input id="url" value="" spellcheck="false" aria-label="Hydro OJ 地址" />
+      <button id="go" type="button">打开</button>
+      <button id="runAll" type="button">运行全部</button>
     </header>
-    <main>
-      <textarea id="code" spellcheck="false">#include &lt;bits/stdc++.h&gt;
-using namespace std;
 
-int main() {
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
+    <main class="workbench">
+      <aside class="explorer">
+        <div class="panel-title">
+          <span>资源管理器</span>
+          <div class="title-actions">
+            <button id="addSource" type="button" title="新增源码文件">+</button>
+            <button id="addCase" type="button" title="新增测试点">T</button>
+          </div>
+        </div>
+        <div class="tree-section">
+          <div class="section-label">源码</div>
+          <div id="sourceList" class="file-list"></div>
+        </div>
+        <div class="tree-section">
+          <div class="section-label">测试数据</div>
+          <div id="caseList" class="file-list"></div>
+        </div>
+      </aside>
 
-    int a, b;
-    cin &gt;&gt; a &gt;&gt; b;
-    cout &lt;&lt; a + b &lt;&lt; '\n';
-    return 0;
-}
-</textarea>
-      <section>
-        <label for="stdin">样例输入</label>
-        <textarea id="stdin" spellcheck="false">1 2
-</textarea>
+      <section class="editor-pane">
+        <div class="tabs">
+          <div id="activeTab" class="tab">main.cpp</div>
+          <span id="status">F8 显示/隐藏本地编辑器</span>
+        </div>
+        <div class="editor-wrap">
+          <pre id="lineNumbers" aria-hidden="true">1</pre>
+          <textarea id="code" spellcheck="false" aria-label="C++ 源码"></textarea>
+        </div>
       </section>
-      <div class="actions">
-        <button id="run">本地运行样例</button>
-        <span id="status">F8 显示/隐藏此面板</span>
-      </div>
-      <pre id="output"></pre>
+
+      <section class="case-pane">
+        <div class="case-header">
+          <div>
+            <div id="caseTitle" class="case-title">0.in / 0.out</div>
+            <div id="caseMeta" class="case-meta">编辑输入数据和期望输出</div>
+          </div>
+          <div class="case-actions">
+            <button id="runCurrent" type="button">运行当前</button>
+            <button id="deleteCase" type="button">删除</button>
+          </div>
+        </div>
+
+        <div class="io-grid">
+          <label>
+            <span>输入数据</span>
+            <textarea id="stdin" spellcheck="false"></textarea>
+          </label>
+          <label>
+            <span>期望输出</span>
+            <textarea id="expected" spellcheck="false"></textarea>
+          </label>
+        </div>
+
+        <div class="result-tabs">
+          <button class="result-tab active" data-panel="summary" type="button">测试结果</button>
+          <button class="result-tab" data-panel="stdout" type="button">实际输出</button>
+          <button class="result-tab" data-panel="stderr" type="button">错误信息</button>
+        </div>
+        <div id="summaryPanel" class="result-panel active">
+          <div id="resultList" class="result-list"></div>
+        </div>
+        <pre id="stdoutPanel" class="result-panel"></pre>
+        <pre id="stderrPanel" class="result-panel"></pre>
+      </section>
     </main>
     <script src="./tools.js"></script>
   </body>

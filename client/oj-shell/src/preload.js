@@ -2,6 +2,7 @@ const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("gyoj", {
   runSample: (payload) => ipcRenderer.invoke("run-sample", payload),
+  runTests: (payload) => ipcRenderer.invoke("run-tests", payload),
   getDefaultOjUrl: () => ipcRenderer.invoke("get-default-oj-url"),
   loadOjUrl: (url) => ipcRenderer.invoke("load-oj-url", url),
   unlockExam: (password) => ipcRenderer.invoke("unlock-exam", password),

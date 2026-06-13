@@ -12,7 +12,8 @@
 - 默认考试模式：正式启动时自动全屏、置顶、kiosk。
 - Hydro 页面嵌入：客户端主窗口直接加载你自己的 Hydro OJ，不是官方演示站。
 - 本地 C++ 编辑器：客户端自动打开本地 OI 编辑器窗口，内置 A+B 模板。
-- 本地样例运行：内置 MinGW/g++，支持编译运行 C++14 代码和样例输入。
+- CPH 式本地测试工作区：左侧列出源码文件和 `0.in / 0.out`、`1.in / 1.out` 等测试数据，中间编辑代码，右侧编辑输入数据、期望输出和查看测试结果。
+- 本地样例运行：内置 MinGW/g++，支持编译运行 C++14 代码，编译错误、运行错误、超时、答案错误和通过状态会在客户端中直接提示。
 - 远程正式判题：隐藏测试数据不下发到客户端，仍通过 Hydro/HydroJudge 判题。
 - 禁止复制粘贴：拦截 `Ctrl+C`、`Ctrl+V`、`Ctrl+X`，并定时清空剪贴板。
 - 禁止切屏：拦截常见切屏快捷键，窗口失焦后锁定考试。
@@ -231,7 +232,7 @@ npm start
 ```powershell
 cd <project-root>\client\oj-shell
 npm run dist:win
-Compress-Archive -Path .\dist\win-unpacked\* -DestinationPath .\dist\Hydro-Exam-Client-win-x64.zip -Force
+tar -a -cf .\dist\Hydro-Exam-Client-win-x64.zip -C .\dist\win-unpacked .
 ```
 
 打包结果：

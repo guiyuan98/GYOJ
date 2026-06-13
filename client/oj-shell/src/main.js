@@ -97,7 +97,7 @@ function editorAutoOpen() {
 function setLayout() {
   if (!mainWindow || !toolsWindow) return;
   const bounds = mainWindow.getBounds();
-  const toolsWidth = Math.min(520, Math.max(420, Math.floor(bounds.width * 0.32)));
+  const toolsWidth = Math.min(bounds.width - 48, Math.max(980, Math.floor(bounds.width * 0.62)));
   toolsWindow.setBounds({
     x: Math.max(bounds.x, bounds.x + bounds.width - toolsWidth - 24),
     y: bounds.y,
@@ -231,9 +231,9 @@ function createWindow() {
   Menu.setApplicationMenu(null);
 
   toolsWindow = new BrowserWindow({
-    width: 520,
+    width: 980,
     height: 900,
-    title: "Hydro Local OI Editor",
+    title: "Hydro OI 本地编辑器",
     show: false,
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),
@@ -245,7 +245,7 @@ function createWindow() {
   toolsWindow.setAlwaysOnTop(true, "floating");
 
   lockWindow = new BrowserWindow({
-    title: "Hydro Exam Locked",
+    title: "Hydro 考试已锁定",
     show: false,
     fullscreen: true,
     frame: false,
@@ -349,6 +349,41 @@ ipcMain.handle("run-sample", async (_event, payload) => {
     timeoutMs: Number(config.localRunTimeoutMs) || 3000,
   });
   return { phase: "run", ...run };
+});
+
+ipcMain.handle("run-tests", async (_event, payload) => {
+  const workDir = fs.mkdtempSync(path.join(os.tmpdir(), "gyoj-tests-"));
+  const sourcePath = path.join(workDir, "main.cpp");
+  const exePath = path.join(workDir, "main.exe");
+  fs.writeFileSync(sourcePath, payload.code || "", "utf8");
+
+  const compilerPath = resolveCompilerPath();
+  const compile = await runCommand(
+    compilerPath,
+    ["-std=c++14", "-O2", "-pipe", sourcePath, "-o", exePath],
+    { cwd: workDir, timeoutMs: 10000 },
+  );
+  if (!compile.ok) {
+    return { phase: "compile", compile, tests: [] };
+  }
+
+  const cases = Array.isArray(payload.tests) ? payload.tests : [];
+  const tests = [];
+  for (const test of cases) {
+    const run = await runCommand(exePath, [], {
+      cwd: workDir,
+      stdin: test.input || "",
+      timeoutMs: Number(config.localRunTimeoutMs) || 3000,
+    });
+    tests.push({
+      id: test.id,
+      name: test.name,
+      input: test.input || "",
+      expected: test.expected || "",
+      ...run,
+    });
+  }
+  return { phase: "run", compile, tests };
 });
 
 ipcMain.handle("load-oj-url", async (_event, url) => {
